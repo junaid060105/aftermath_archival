@@ -59,21 +59,35 @@
   function escapeText(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   }
-  function fallbackCover(name) {
-    return `<div class="cover-placeholder" style="--glow:#355063">${escapeText(name)}</div>`;
-  }
+  
+function fallbackCover(name) {
+  return `
+    <div class="cover-placeholder">
+      <span class="fallback-label">AFTERPLAY / NO COVER ART</span>
+      <strong>${escapeText(name)}</strong>
+      <span class="fallback-mark">GAME ARCHIVE</span>
+    </div>
+  `;
+}
+  
   function createChip(text, extra = "") {
     const el = document.createElement("span"); el.className = `chip ${extra}`.trim(); el.textContent = text; return el;
   }
-  function updateBackdrop(game) {
-    const backdrop = $("#backdrop");
-    if (game?.cover) {
-      backdrop.style.backgroundImage = `url("${game.cover.replace(/["\\]/g, "")}")`;
-      backdrop.style.opacity = ".42";
-    } else {
-      backdrop.style.backgroundImage = "none"; backdrop.style.opacity = ".08";
-    }
+  
+function updateBackdrop(game) {
+  const backdrop = $("#backdrop");
+  const image = game?.landscape || game?.cover || "";
+
+  if (image) {
+    backdrop.style.backgroundImage =
+      `url("${image.replace(/["\\]/g, "")}")`;
+    backdrop.style.opacity = ".42";
+  } else {
+    backdrop.style.backgroundImage = "none";
+    backdrop.style.opacity = ".08";
   }
+}
+
 
   function render() {
     renderLibrary(); renderStats();
@@ -90,14 +104,31 @@
     visible.forEach(game => {
       const card = document.createElement("button"); card.type = "button"; card.className = "game-card";
       card.setAttribute("aria-label", `Open ${game.name}`);
-      if (game.cover) {
-        const img = document.createElement("img"); img.src = game.cover; img.alt = `${game.name} cover`; img.loading = "lazy";
-        img.onerror = () => {
-          if (game.landscape && img.src !== game.landscape) { img.src = game.landscape; img.style.objectFit = "contain"; img.style.background = "#111820"; }
-          else { img.remove(); card.insertAdjacentHTML("afterbegin", fallbackCover(game.name)); }
-        };
-        card.append(img);
-      } else card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
+      
+if (game.cover) {
+  const img = document.createElement("img");
+  img.src = game.cover;
+  img.alt = `${game.name} cover`;
+  img.loading = "lazy";
+
+  img.onerror = () => {
+    if (game.landscape && img.src !== game.landscape) {
+      img.src = game.landscape;
+      img.style.objectFit = "contain";
+      img.style.background = "#111820";
+    } else {
+      img.remove();
+      card.classList.add("no-cover");
+      card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
+    }
+  };
+
+  card.append(img);
+} else {
+  card.classList.add("no-cover");
+  card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
+}
+
       const info = document.createElement("div"); info.className = "game-info";
       const title = document.createElement("h3"); title.textContent = game.name;
       const chips = document.createElement("div"); chips.className = "chips";
