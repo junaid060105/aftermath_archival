@@ -14,20 +14,27 @@ footer{display:flex;justify-content:space-between;margin-top:36px;padding:18px 0
 @media(max-width:800px){.topbar{padding:0 20px}.topbar nav{display:none}.shell{padding:35px 20px 24px}.dashboard{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.hero .button{align-self:flex-start}.section-heading{align-items:flex-start;flex-direction:column}.library-tools{width:100%}.searchbox{flex:1}.searchbox input{width:100%}}
 @media(max-width:560px){.brand small{display:none}.top-meta{font-size:8px}.hero h1{font-size:60px}.game-card,.add-card{flex-basis:172px;height:260px}.game-info h3{font-size:21px}.form-grid{grid-template-columns:1fr}.detail-card{grid-template-columns:1fr}.detail-art{height:240px;min-height:240px}.detail-content{padding:22px;max-height:none}.detail-x{position:fixed;right:22px;top:22px}footer{gap:12px;flex-direction:column}}
 
-/* AFTERPLAY — Game card text visibility fix */
+/* AFTERPLAY — Universal game title visibility fix */
 
+.game-card h3,
+.game-card h2,
+.game-card .game-title,
+.game-card .game-name,
 .game-info h3 {
-    color: #f5f7f9 !important;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+    color: #f4f6f8 !important;
+    -webkit-text-fill-color: #f4f6f8 !important;
+    text-shadow: 0 2px 8px #000 !important;
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
+/* Placeholder artwork */
 .cover-placeholder {
-    color: #f5f7f9 !important;
+    color: #f4f6f8 !important;
 }
 
-.game-info {
-    z-index: 2;
+/* Keep badges' original colours */
+.game-info .chip {
+    -webkit-text-fill-color: initial;
 }
 
