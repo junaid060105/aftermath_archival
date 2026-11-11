@@ -3,7 +3,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const STORAGE_KEY = "afterplay_games";
   // Paste your Cloudflare Worker URL here after deploying worker/worker.js.
-  const API_BASE = "https://afterplay-api.jnxd1816.workers.dev"; // Add your deployed Cloudflare Worker URL here to enable online search.
+  const API_BASE = "https://afterplay-api.jnxd1816.workers.dev";
   const STATUSES = ["Just started", "Playing", "Paused", "Finished", "Completed 100%", "Dropped", "Backlog"];
   const PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Other"];
   const GENRES = ["Action", "Adventure", "Racing", "Sports", "RPG", "Shooter", "Strategy", "Simulation", "Horror", "Other"];
@@ -15,10 +15,10 @@
   let chart = null;
 
   const starter = [
-    { id: crypto.randomUUID(), name: "Red Dead Redemption 2", genre: "Adventure", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900.jpg", summary: "An open-world Western following Arthur Morgan and the Van der Linde gang in the final years of the American frontier.", source: "Steam Store", appId: "1174180", notes: "" },
-    { id: crypto.randomUUID(), name: "Forza Horizon 4", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1293830/library_600x900.jpg", summary: "An open-world racing festival set in a fictionalised Britain, with dynamic seasons and a large collection of cars.", source: "Steam Store", appId: "1293830", notes: "" },
-    { id: crypto.randomUUID(), name: "F1 25", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3059520/library_600x900.jpg", summary: "The official Formula One game for the 2025 season.", source: "Steam Store", appId: "3059520", notes: "" },
-    { id: crypto.randomUUID(), name: "EA SPORTS FC 26", genre: "Sports", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/library_600x900.jpg", summary: "EA's football simulation featuring club football, refreshed gameplay options and career modes.", source: "Steam Store", appId: "3405690", notes: "" },
+    { id: crypto.randomUUID(), name: "Red Dead Redemption 2", genre: "Adventure", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900.jpg", summary: "An open-world Western following Arthur Morgan and the Van der Linde gang in the final years of the American frontier.", source: "Game archive", appId: "", notes: "" },
+    { id: crypto.randomUUID(), name: "Forza Horizon 4", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1293830/library_600x900.jpg", summary: "An open-world racing festival set in a fictionalised Britain, with dynamic seasons and a large collection of cars.", source: "Game archive", appId: "", notes: "" },
+    { id: crypto.randomUUID(), name: "F1 25", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3059520/library_600x900.jpg", summary: "The official Formula One game for the 2025 season.", source: "Game archive", appId: "", notes: "" },
+    { id: crypto.randomUUID(), name: "EA SPORTS FC 26", genre: "Sports", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/library_600x900.jpg", summary: "EA's football simulation featuring club football, refreshed gameplay options and career modes.", source: "Game archive", appId: "", notes: "" },
     { id: crypto.randomUUID(), name: "Traffic Rider", genre: "Racing", device: "Mobile", status: "Backlog", cover: "", summary: "A first-person motorcycle racing game built around weaving through highway traffic.", source: "Manual starter entry", notes: "" }
   ];
 
@@ -146,7 +146,7 @@
   const gameDialog = $("#gameDialog"), detailDialog = $("#detailDialog");
   function openAddDialog() {
     $("#gameForm").reset(); $("#formTitle").textContent = "Add a game";
-    $("#lookupMessage").textContent = "Search automatically after connecting the free lookup service. Common aliases such as GTA 5 and GTA V are treated as the same game.";
+    $("#lookupMessage").textContent = "Search across game databases and web results, including fan games and ROM hacks. Select the correct result to fill in available details.";
     $("#lookupChoices").replaceChildren(); selectedGameId = null;
     gameDialog.showModal(); $("#gameName").focus();
   }
@@ -185,7 +185,7 @@
     $("#gameCover").value = game.cover || game.landscape || "";
     $("#gameSummary").value = game.summary || "";
     $("#gameRelease").value = game.releaseDate || "";
-    $("#lookupMessage").textContent = `Details found via ${game.source || "online database"}. Review and save, or edit any field.`;
+    $("#lookupMessage").textContent = `Details found via ${game.source || "online source"}. Review and save, or edit any field.`;
     $("#lookupChoices").replaceChildren();
     window.currentLookup = game;
   }
@@ -215,7 +215,7 @@
     $("#lookupChoices").replaceChildren();
     const title = $("#gameName").value.trim();
     if (title.length < 2) { $("#lookupMessage").textContent = "Type at least two characters to search."; return; }
-    $("#lookupMessage").textContent = "Searching game databases…";
+    $("#lookupMessage").textContent = "Searching game databases and web results…";
     lookupTimer = setTimeout(async () => {
       try {
         const result = await lookupTitle(title);
@@ -272,10 +272,10 @@
     $("#detailMeta").textContent = [game.releaseDate && `Release: ${game.releaseDate}`, game.developer && `Developer: ${game.developer}`, game.source && `Source: ${game.source}`].filter(Boolean).join(" · ");
     if (game.review?.label) {
       $("#detailRank").textContent = game.review.label;
-      $("#detailRankNote").textContent = "Steam user-review summary. This is not a worldwide sales or player ranking.";
+      $("#detailRankNote").textContent = "Community information from the selected game source.";
     } else {
       $("#detailRank").textContent = "Not available";
-      $("#detailRankNote").textContent = "No verified worldwide ranking is available from the current source. Review scores and sales rankings are not interchangeable.";
+      $("#detailRankNote").textContent = "No verified ranking is available for this entry.";
     }
     $("#editStatus").value = game.status; $("#editNotes").value = game.notes || "";
     detailDialog.showModal();

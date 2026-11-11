@@ -1,36 +1,45 @@
-AFTERPLAY — GitHub Pages setup (no Node.js or terminal required)
+AFTERPLAY — UNIVERSAL GAME SEARCH UPDATE
 
-WHAT THIS UPDATE FIXES
-- GTA 5, GTA V, GTA5, Grand Theft Auto 5 and Grand Theft Auto V are standardized to one canonical title during lookup.
-- Added aliases for RDR2, FH4 and FH5.
-- Game profile opens with the artwork contained in its own panel, alongside the game information (not as a full-screen zoomed image).
-- Genre chart displays percentage labels directly on the doughnut slices where there is enough room; hover also shows count and percentage.
-- Release date, description, cover URL and personal notes are optional. Only the game title is required; genre, device and status have sensible defaults.
-- Steam portrait artwork is attempted first, with a landscape header fallback if the portrait asset is unavailable.
+This update removes Steam from game lookup. It adds a multi-source search backend:
+- RAWG: structured game metadata, covers, release dates and genres (requires a free API key).
+- Wikipedia: searchable pages and article summaries/images, useful for known games and some fan projects.
+- Wikidata: structured community-maintained entries.
+- Brave Search: wider web results, useful for obscure titles, ROM hacks and fan games (requires an API subscription key; check current pricing/limits).
 
-PART 1 — Upload website files
+IMPORTANT: no single public database contains every ROM hack or fan game. This setup combines sources and still allows manual entry for anything not indexed.
+
+PART A — Update the website
 1. Open your GitHub repository.
-2. Click Add file > Upload files.
-3. Extract this ZIP on your computer and open the afterplay-pages folder.
-4. Upload index.html, styles.css, app.js and README-SETUP.txt into the repository ROOT (not inside another folder).
-5. Commit changes. If GitHub asks whether to replace existing files, confirm.
-6. Keep Settings > Pages set to Deploy from a branch, branch main, folder /(root).
+2. Upload index.html, styles.css and app.js from this folder to the repository ROOT, replacing existing files.
+3. Commit changes.
+4. app.js is already configured to use your existing Worker URL:
+   https://afterplay-api.jnxd1816.workers.dev
 
-PART 2 — Connect automatic game search (required for online lookup)
-GitHub Pages is static hosting and cannot run the lookup backend itself. The site will still let you add games manually until this one-time setup is complete.
-1. Sign in to Cloudflare and open Workers & Pages.
-2. Create a Worker (start with a simple Hello World worker).
-3. Open the Worker code editor, replace all starter code with the complete contents of worker/worker.js from this ZIP, then Deploy.
-4. Copy the Worker URL. It should look like https://your-worker-name.your-account.workers.dev
-5. In your GitHub repository, open app.js and click Edit (pencil).
-6. Near the top, find: const API_BASE = "";
-7. Replace it with your exact Worker URL, for example: const API_BASE = "https://your-worker-name.your-account.workers.dev";
-   Do not add a trailing slash.
-8. Commit changes and wait for GitHub Pages to redeploy.
-9. Test by adding GTA 5, GTA V, Grand Theft Auto 5 or Grand Theft Auto V. The search should resolve those aliases to Grand Theft Auto V. If multiple editions appear, choose the correct result.
+PART B — Replace Cloudflare Worker code
+1. Open Cloudflare > Workers & Pages > afterplay-api > Edit code.
+2. Replace all existing code with the complete contents of worker/worker.js in this package.
+3. Click Deploy.
+4. Test the root URL. It should return JSON with service "AFTERPLAY Universal Game Search".
 
-IMPORTANT NOTES
-- Steam lookup only finds games listed on Steam. Mobile/console-only games may need manual entry.
-- A specific Steam game may not have portrait library artwork. The app will try its landscape header image as a fallback; a custom image URL can also be entered manually.
-- Your library is stored in this browser's local storage. It is not synced across devices or browsers, and clearing browser site data can erase it. Export/backup is not included in this version.
-- Never put private API keys or passwords in app.js. This Worker uses public Steam store endpoints and does not require a Steam API key.
+PART C — Optional: add RAWG for structured game catalogue results
+1. Create a RAWG account and request an API key at https://rawg.io/apidocs.
+2. In Cloudflare, open afterplay-api > Settings > Variables and Secrets.
+3. Add a secret named RAWG_API_KEY and paste your key as its value.
+4. Save and deploy/redeploy.
+RAWG's free plan is intended for personal/hobby projects, has request limits and requires attribution with an active link where its data/images are used. Review RAWG's current terms before use.
+
+PART D — Optional: wider web search for ROM hacks and fan games
+1. Obtain a Brave Search API key from https://brave.com/search/api/.
+2. Add a Cloudflare secret named BRAVE_API_KEY with that key as its value.
+3. Save and redeploy.
+Check Brave's current plan, pricing, and request limits before subscribing. Do not paste API keys into GitHub or app.js.
+
+TESTS
+- Search Pokémon Unbound, Pokémon Radical Red, Pokémon Emerald, GTA 5, Forza Horizon 4.
+- Results can come from different sources. Select the correct result to fetch its available details.
+- If a ROM hack is not indexed in the selected sources, you can still save it manually and add a cover URL/description.
+
+DATA AND PRIVACY
+- Search requests go through your Cloudflare Worker to the selected public data providers.
+- Your personal collection remains in this browser's local storage.
+- Do not publish API keys in the GitHub repository.
