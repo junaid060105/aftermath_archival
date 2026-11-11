@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090c11">
+<meta name="description" content="AFTERPLAY — your personal gaming archive.">
+<title>AFTERPLAY — Game Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+<script src="./app.js" defer></script>
+</head>
+<body>
+<div class="backdrop" id="backdrop"></div><div class="scrim"></div>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="Afterplay home">AFTER<span>PLAY</span><small> / GAME ARCHIVE</small></a>
+  <nav><a href="#library">Library</a><a href="#insights">Your taste</a><a href="#platforms">Platforms</a></nav>
+  <div class="top-meta"><span id="totalCount">00 GAMES LOGGED</span><div class="avatar">A</div></div>
+</header>
+<main class="shell">
+  <section class="hero">
+    <div><p class="eyebrow">PLAYER ONE / PERSONAL COLLECTION</p><h1>EVERY GAME.<br><em>ONE STORY.</em></h1><p class="intro">A personal archive of worlds explored, records broken and time well spent.</p></div>
+    <button class="button button-primary" id="addGameButton">＋ Add a game</button>
+  </section>
+
+  <section id="library" class="section">
+    <div class="section-heading"><div><p class="eyebrow">01 / THE COLLECTION</p><h2>Your library</h2></div><div class="library-tools"><label class="searchbox"><span>⌕</span><input id="filterInput" placeholder="Search your collection" aria-label="Search your collection"></label><select id="statusFilter" aria-label="Filter by status"><option value="all">All statuses</option><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div></div>
+    <div class="carousel" id="gameCarousel" aria-label="Game collection"></div>
+  </section>
+
+  <section class="dashboard">
+    <article class="panel" id="insights"><div class="panel-title"><div><p class="eyebrow">02 / PLAYER PROFILE</p><h2>Your gaming DNA</h2></div><span class="panel-note">GENRE BREAKDOWN</span></div><div class="chart-wrap"><canvas id="genreChart" aria-label="Genre breakdown chart"></canvas><div id="chartEmpty" class="empty-note">Add games to reveal your gaming taste.</div></div></article>
+    <article class="panel" id="platforms"><div class="panel-title"><div><p class="eyebrow">03 / YOUR SETUP</p><h2>Platforms</h2></div><span class="panel-note">GAMES BY DEVICE</span></div><div class="platform-grid" id="platformGrid"></div></article>
+  </section>
+  <footer><span>AFTERPLAY / PERSONAL GAME ARCHIVE</span><span>YOUR COLLECTION IS STORED IN THIS BROWSER</span></footer>
+</main>
+
+<dialog class="dialog" id="gameDialog">
+  <form id="gameForm" method="dialog" class="dialog-card">
+    <div class="dialog-head"><div><p class="eyebrow">COLLECTION MANAGEMENT</p><h2 id="formTitle">Add a game</h2><p class="muted">Search first. We'll fill in the details when a reliable match is found.</p></div><button class="icon-button" type="button" data-close="gameDialog" aria-label="Close">×</button></div>
+    <div class="field"><label for="gameName">Game title</label><input id="gameName" required minlength="2" autocomplete="off" placeholder="e.g. Grand Theft Auto V"><div id="lookupMessage" class="field-help" aria-live="polite">Type a title to search Steam and other available game records.</div><div id="lookupChoices" class="lookup-choices"></div></div>
+    <div class="form-grid"><div class="field"><label for="gameGenre">Genre</label><select id="gameGenre"><option>Action</option><option>Adventure</option><option>Racing</option><option>Sports</option><option>RPG</option><option>Shooter</option><option>Strategy</option><option>Simulation</option><option>Horror</option><option>Other</option></select></div>
+    <div class="field"><label for="gameDevice">Played on</label><select id="gameDevice"><option>PC</option><option>PlayStation</option><option>Xbox</option><option>Nintendo</option><option>Mobile</option><option>Other</option></select></div></div>
+    <div class="form-grid"><div class="field"><label for="gameStatus">Play status</label><select id="gameStatus"><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div>
+    <div class="field"><label for="gameRelease">Release date</label><input id="gameRelease" placeholder="Auto-filled when available"></div></div>
+    <div class="field"><label for="gameSummary">Game description</label><textarea id="gameSummary" rows="3" placeholder="Automatically fetched when available. You can edit it if needed."></textarea></div>
+    <div class="field"><label for="gameCover">Cover image URL</label><input id="gameCover" type="url" placeholder="Automatically fetched when available"></div>
+    <div class="field"><label for="gameNotes">Your notes <span class="optional">OPTIONAL</span></label><textarea id="gameNotes" rows="2" placeholder="Your memories, progress, favourite moments…"></textarea></div>
+    <div class="dialog-actions"><button class="button button-quiet" type="button" data-close="gameDialog">Cancel</button><button class="button button-primary" id="saveGameButton" type="submit">Save to library</button></div>
+  </form>
+</dialog>
+
+<dialog class="dialog detail-dialog" id="detailDialog">
+  <article class="detail-card">
+    <button class="icon-button detail-x" type="button" data-close="detailDialog" aria-label="Close">×</button>
+    <div class="detail-art"><img id="detailImage" alt="Game cover"></div>
+    <div class="detail-content"><p class="eyebrow">GAME PROFILE / PLAYER RECORD</p><h2 id="detailName"></h2><div class="chips" id="detailChips"></div>
+      <div class="rank-card"><span>GLOBAL REVIEW SNAPSHOT</span><strong id="detailRank">Not available</strong><small id="detailRankNote">A verified worldwide rank is not available for every title.</small></div>
+      <p id="detailSummary" class="detail-summary"></p><div class="detail-meta" id="detailMeta"></div>
+      <div class="field"><label for="editStatus">Update play status</label><select id="editStatus"><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div>
+      <div class="field"><label for="editNotes">Your notes</label><textarea id="editNotes" rows="2"></textarea></div>
+      <div class="detail-actions"><button class="button button-danger" id="deleteGameButton" type="button">Delete game</button><span class="spacer"></span><button class="button button-quiet" data-close="detailDialog" type="button">Close</button><button class="button button-primary" id="updateGameButton" type="button">Save changes</button></div>
+    </div>
+  </article>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>
