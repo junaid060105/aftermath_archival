@@ -13,3 +13,21 @@ footer{display:flex;justify-content:space-between;margin-top:36px;padding:18px 0
 .dialog{width:min(640px,calc(100% - 24px));max-height:90vh;padding:0;border:1px solid #3b4653;border-radius:8px;background:#111821;color:var(--text);box-shadow:0 25px 100px #000b}.dialog::backdrop{background:#000c;backdrop-filter:blur(8px)}.dialog-card{padding:25px}.dialog-head{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.dialog-head h2{font:800 32px "Barlow Condensed";text-transform:uppercase;margin:0 0 5px}.muted{font-size:11px;color:#9ba5b1;margin:0}.icon-button{width:34px;height:34px;border:1px solid #4a5664;border-radius:50%;background:transparent;color:#dce2e9;font-size:20px;cursor:pointer;flex:none}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:9px;letter-spacing:1.3px;color:#aab5c2;text-transform:uppercase}.optional{color:#758291;margin-left:5px}.field input,.field textarea{width:100%;padding:11px 12px;background:#090e14;border:1px solid #36414e;border-radius:4px;color:#f5f7f9;font:12px "DM Sans";outline:none;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--lime)}.field-help{color:#8e9aa8;font-size:10px;line-height:1.5}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.lookup-choices{display:grid;gap:6px}.lookup-option{display:flex;align-items:center;gap:10px;text-align:left;background:#0b1118;border:1px solid #35414e;color:#eef2f6;padding:7px;border-radius:4px;cursor:pointer}.lookup-option:hover{border-color:var(--lime)}.lookup-option img{width:42px;height:48px;object-fit:cover;background:#1a2530}.lookup-option b{font-size:11px}.lookup-option small{display:block;color:#8d99a7;font-size:9px;margin-top:3px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.detail-dialog{width:min(820px,calc(100% - 24px))}.detail-card{display:grid;grid-template-columns:minmax(190px,.72fr) 1.28fr;position:relative;min-height:440px}.detail-art{background:#0b1118;min-height:440px;display:grid;place-items:center;padding:14px;overflow:hidden}.detail-art img{display:block;width:100%;height:100%;max-height:520px;object-fit:contain;position:static;inset:auto}.detail-content{padding:30px 28px;overflow:auto;max-height:85vh}.detail-content h2{font:800 39px/.95 "Barlow Condensed";text-transform:uppercase;margin:7px 0 12px}.detail-x{position:absolute;right:12px;top:12px;z-index:3;background:#090d13b8}.rank-card{padding:13px 15px;background:#ffffff08;border:1px solid #ffffff16;margin:17px 0;display:grid;gap:4px}.rank-card span{font-size:8px;color:#9ba6b3;letter-spacing:1.3px}.rank-card strong{font:700 24px "Barlow Condensed";color:var(--lime)}.rank-card small{font-size:9px;color:#9ba6b3;line-height:1.5}.detail-summary{font-size:12px;line-height:1.7;color:#c0c8d2}.detail-meta{font-size:10px;color:#8e9aa8;line-height:1.8;margin:12px 0}.detail-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.spacer{flex:1}.toast{position:fixed;z-index:50;bottom:22px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:var(--lime);color:#11170a;padding:11px 16px;border-radius:4px;font-size:11px;font-weight:700;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:800px){.topbar{padding:0 20px}.topbar nav{display:none}.shell{padding:35px 20px 24px}.dashboard{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.hero .button{align-self:flex-start}.section-heading{align-items:flex-start;flex-direction:column}.library-tools{width:100%}.searchbox{flex:1}.searchbox input{width:100%}}
 @media(max-width:560px){.brand small{display:none}.top-meta{font-size:8px}.hero h1{font-size:60px}.game-card,.add-card{flex-basis:172px;height:260px}.game-info h3{font-size:21px}.form-grid{grid-template-columns:1fr}.detail-card{grid-template-columns:1fr}.detail-art{height:240px;min-height:240px}.detail-content{padding:22px;max-height:none}.detail-x{position:fixed;right:22px;top:22px}footer{gap:12px;flex-direction:column}}
+
+/* AFTERPLAY — Game card text visibility fix */
+
+.game-info h3 {
+    color: #f5f7f9 !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+    position: relative;
+    z-index: 2;
+}
+
+.cover-placeholder {
+    color: #f5f7f9 !important;
+}
+
+.game-info {
+    z-index: 2;
+}
+
