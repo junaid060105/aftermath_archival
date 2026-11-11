@@ -3,7 +3,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const STORAGE_KEY = "afterplay_games";
   // Paste your Cloudflare Worker URL here after deploying worker/worker.js.
-  const API_BASE = ""; // Add your deployed Cloudflare Worker URL here to enable online search.
+  const API_BASE = "https://afterplay-api.jnxd1816.workers.dev"; // Add your deployed Cloudflare Worker URL here to enable online search.
   const STATUSES = ["Just started", "Playing", "Paused", "Finished", "Completed 100%", "Dropped", "Backlog"];
   const PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Other"];
   const GENRES = ["Action", "Adventure", "Racing", "Sports", "RPG", "Shooter", "Strategy", "Simulation", "Horror", "Other"];
