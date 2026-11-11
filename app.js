@@ -2,6 +2,7 @@
   "use strict";
   const $ = (selector, root = document) => root.querySelector(selector);
   const STORAGE_KEY = "afterplay_games";
+  const PROFILE_KEY = "afterplay_profile";
   // Paste your Cloudflare Worker URL here after deploying worker/worker.js.
   const API_BASE = "https://afterplay-api.jnxd1816.workers.dev";
   const STATUSES = ["Just started", "Playing", "Paused", "Finished", "Completed 100%", "Dropped", "Backlog"];
@@ -13,14 +14,6 @@
   let lookupTimer = null;
   let lookupAbort = null;
   let chart = null;
-
-  const starter = [
-    { id: crypto.randomUUID(), name: "Red Dead Redemption 2", genre: "Adventure", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900.jpg", summary: "An open-world Western following Arthur Morgan and the Van der Linde gang in the final years of the American frontier.", source: "Game archive", appId: "", notes: "" },
-    { id: crypto.randomUUID(), name: "Forza Horizon 4", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1293830/library_600x900.jpg", summary: "An open-world racing festival set in a fictionalised Britain, with dynamic seasons and a large collection of cars.", source: "Game archive", appId: "", notes: "" },
-    { id: crypto.randomUUID(), name: "F1 25", genre: "Racing", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3059520/library_600x900.jpg", summary: "The official Formula One game for the 2025 season.", source: "Game archive", appId: "", notes: "" },
-    { id: crypto.randomUUID(), name: "EA SPORTS FC 26", genre: "Sports", device: "PC", status: "Backlog", cover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/library_600x900.jpg", summary: "EA's football simulation featuring club football, refreshed gameplay options and career modes.", source: "Game archive", appId: "", notes: "" },
-    { id: crypto.randomUUID(), name: "Traffic Rider", genre: "Racing", device: "Mobile", status: "Backlog", cover: "", summary: "A first-person motorcycle racing game built around weaving through highway traffic.", source: "Manual starter entry", notes: "" }
-  ];
 
   function loadGames() {
     try {
@@ -49,7 +42,7 @@
       notes: game.notes || ""
     };
   }
-  if (!games) { games = starter.map(normalizeGame); persist(); }
+  if (!games) { games = []; persist(); }
   function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(games)); }
 
   function toast(message) {
@@ -59,35 +52,21 @@
   function escapeText(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   }
-  
-function fallbackCover(name) {
-  return `
-    <div class="cover-placeholder">
-      <span class="fallback-label">AFTERPLAY / NO COVER ART</span>
-      <strong>${escapeText(name)}</strong>
-      <span class="fallback-mark">GAME ARCHIVE</span>
-    </div>
-  `;
-}
-  
+  function fallbackCover(name) {
+    return `<div class="cover-placeholder" style="--glow:#355063">${escapeText(name)}</div>`;
+  }
   function createChip(text, extra = "") {
     const el = document.createElement("span"); el.className = `chip ${extra}`.trim(); el.textContent = text; return el;
   }
-  
-function updateBackdrop(game) {
-  const backdrop = $("#backdrop");
-  const image = game?.landscape || game?.cover || "";
-
-  if (image) {
-    backdrop.style.backgroundImage =
-      `url("${image.replace(/["\\]/g, "")}")`;
-    backdrop.style.opacity = ".42";
-  } else {
-    backdrop.style.backgroundImage = "none";
-    backdrop.style.opacity = ".08";
+  function updateBackdrop(game) {
+    const backdrop = $("#backdrop");
+    if (game?.cover) {
+      backdrop.style.backgroundImage = `url("${game.cover.replace(/["\\]/g, "")}")`;
+      backdrop.style.opacity = ".42";
+    } else {
+      backdrop.style.backgroundImage = "none"; backdrop.style.opacity = ".08";
+    }
   }
-}
-
 
   function render() {
     renderLibrary(); renderStats();
@@ -101,34 +80,24 @@ function updateBackdrop(game) {
       game.name.toLowerCase().includes(query) &&
       (status === "all" || game.status === status)
     );
+    if (games.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-library";
+      empty.innerHTML = `<span class="empty-index">ARCHIVE // 000</span><div class="empty-symbol">＋</div><h3>YOUR STORY STARTS HERE.</h3><p>Your library is quiet for now. Add the games you've played, the worlds you're exploring, and the ones still waiting.</p><button type="button" class="button button-primary" id="emptyAddButton">＋ Add your first game</button>`;
+      carousel.append(empty);
+      empty.querySelector("#emptyAddButton").addEventListener("click", openAddDialog);
+    }
     visible.forEach(game => {
       const card = document.createElement("button"); card.type = "button"; card.className = "game-card";
       card.setAttribute("aria-label", `Open ${game.name}`);
-      
-if (game.cover) {
-  const img = document.createElement("img");
-  img.src = game.cover;
-  img.alt = `${game.name} cover`;
-  img.loading = "lazy";
-
-  img.onerror = () => {
-    if (game.landscape && img.src !== game.landscape) {
-      img.src = game.landscape;
-      img.style.objectFit = "contain";
-      img.style.background = "#111820";
-    } else {
-      img.remove();
-      card.classList.add("no-cover");
-      card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
-    }
-  };
-
-  card.append(img);
-} else {
-  card.classList.add("no-cover");
-  card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
-}
-
+      if (game.cover) {
+        const img = document.createElement("img"); img.src = game.cover; img.alt = `${game.name} cover`; img.loading = "lazy";
+        img.onerror = () => {
+          if (game.landscape && img.src !== game.landscape) { img.src = game.landscape; img.style.objectFit = "contain"; img.style.background = "#111820"; }
+          else { img.remove(); card.insertAdjacentHTML("afterbegin", fallbackCover(game.name)); }
+        };
+        card.append(img);
+      } else card.insertAdjacentHTML("afterbegin", fallbackCover(game.name));
       const info = document.createElement("div"); info.className = "game-info";
       const title = document.createElement("h3"); title.textContent = game.name;
       const chips = document.createElement("div"); chips.className = "chips";
@@ -143,7 +112,7 @@ if (game.cover) {
     });
     const add = document.createElement("button"); add.type = "button"; add.className = "add-card";
     add.innerHTML = "<b>＋</b><span>Add another game</span>"; add.addEventListener("click", openAddDialog); carousel.append(add);
-    if (!visible.length) {
+    if (games.length > 0 && !visible.length) {
       const empty = document.createElement("div"); empty.className = "empty-note"; empty.textContent = "No games match this filter."; carousel.append(empty);
     }
   }
@@ -327,6 +296,51 @@ if (game.cover) {
   $("#statusFilter").addEventListener("change", renderLibrary);
   gameDialog.addEventListener("click", event => { if (event.target === gameDialog) gameDialog.close(); });
   detailDialog.addEventListener("click", event => { if (event.target === detailDialog) detailDialog.close(); });
+
+  // First-visit welcome flow. Existing game records are never deleted.
+  const welcomeScreen = $("#welcomeScreen");
+  const welcomeForm = $("#welcomeForm");
+  const playerNameInput = $("#playerName");
+  const profile = (() => {
+    try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); }
+    catch { return null; }
+  })();
+
+  function applyProfile(name) {
+    const cleanName = String(name || "Gamer").trim().slice(0, 24) || "Gamer";
+    $("#playerAvatar").textContent = cleanName.charAt(0).toUpperCase();
+    $("#playerLabel").textContent = `${cleanName.toUpperCase()}'S ARCHIVE`;
+    document.title = `AFTERPLAY — ${cleanName}'s Game Archive`;
+  }
+
+  function enterArchive(name) {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({ name }));
+    applyProfile(name);
+    document.body.classList.remove("onboarding-active");
+    document.body.classList.add("app-entering");
+    welcomeScreen.classList.add("welcome-exit");
+    setTimeout(() => {
+      welcomeScreen.hidden = true;
+      document.body.classList.remove("app-entering");
+      document.body.classList.add("app-ready");
+    }, 720);
+  }
+
+  if (profile?.name) {
+    applyProfile(profile.name);
+    welcomeScreen.hidden = true;
+    document.body.classList.remove("onboarding-active");
+    document.body.classList.add("app-ready");
+  } else {
+    setTimeout(() => playerNameInput.focus(), 850);
+  }
+
+  welcomeForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const name = playerNameInput.value.trim();
+    if (!name) return;
+    enterArchive(name);
+  });
 
   render();
 })();

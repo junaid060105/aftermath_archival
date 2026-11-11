@@ -43,3 +43,11 @@ DATA AND PRIVACY
 - Search requests go through your Cloudflare Worker to the selected public data providers.
 - Your personal collection remains in this browser's local storage.
 - Do not publish API keys in the GitHub repository.
+
+
+FIRST-VISIT EXPERIENCE
+- New visitors see an animated WELCOME, GAMER screen and enter a display name.
+- The name is stored locally in this browser and used in the archive header/avatar.
+- New browser profiles start with an empty library and an invitation to add the first game.
+- Existing saved games are preserved; this update does not erase browser storage.
+- To test a truly new-user view in the same browser, use a private/incognito window.

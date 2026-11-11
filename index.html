@@ -14,16 +14,34 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" defer></script>
 <script src="./app.js" defer></script>
 </head>
-<body>
+<body class="onboarding-active">
+<section class="welcome-screen" id="welcomeScreen" aria-labelledby="welcomeTitle">
+  <div class="welcome-noise"></div>
+  <div class="welcome-content">
+    <div class="welcome-mark">AFTER<span>PLAY</span><i></i></div>
+    <p class="eyebrow welcome-kicker">YOUR NEXT CHAPTER STARTS HERE</p>
+    <h1 id="welcomeTitle">WELCOME,<br><em>GAMER.</em></h1>
+    <p class="welcome-copy">Every world you explore deserves a place in your story.</p>
+    <form id="welcomeForm" class="welcome-form">
+      <label for="playerName">WHAT SHOULD WE CALL YOU?</label>
+      <div class="welcome-input-wrap">
+        <input id="playerName" name="playerName" maxlength="24" autocomplete="nickname" placeholder="Enter your gamer name" required>
+        <button type="submit" class="welcome-submit" aria-label="Enter AFTERPLAY">→</button>
+      </div>
+      <p class="welcome-hint">YOUR ARCHIVE. YOUR RULES. YOUR STORY.</p>
+    </form>
+  </div>
+  <div class="welcome-footer"><span>AFTERPLAY / PERSONAL GAME ARCHIVE</span><span>PRESS ENTER TO BEGIN ↗</span></div>
+</section>
 <div class="backdrop" id="backdrop"></div><div class="scrim"></div>
 <header class="topbar">
   <a class="brand" href="#" aria-label="Afterplay home">AFTER<span>PLAY</span><small> / GAME ARCHIVE</small></a>
   <nav><a href="#library">Library</a><a href="#insights">Your taste</a><a href="#platforms">Platforms</a></nav>
-  <div class="top-meta"><span id="totalCount">00 GAMES LOGGED</span><div class="avatar">A</div></div>
+  <div class="top-meta"><span id="totalCount">00 GAMES LOGGED</span><div class="avatar" id="playerAvatar">A</div></div>
 </header>
 <main class="shell">
   <section class="hero">
-    <div><p class="eyebrow">PLAYER ONE / PERSONAL COLLECTION</p><h1>EVERY GAME.<br><em>ONE STORY.</em></h1><p class="intro">A personal archive of worlds explored, records broken and time well spent.</p></div>
+    <div><p class="eyebrow">PLAYER ONE / <span id="playerLabel">PERSONAL COLLECTION</span></p><h1>EVERY GAME.<br><em>ONE STORY.</em></h1><p class="intro">A personal archive of worlds explored, records broken and time well spent.</p></div>
     <button class="button button-primary" id="addGameButton">＋ Add a game</button>
   </section>
 
@@ -42,7 +60,7 @@
 <dialog class="dialog" id="gameDialog">
   <form id="gameForm" method="dialog" class="dialog-card">
     <div class="dialog-head"><div><p class="eyebrow">COLLECTION MANAGEMENT</p><h2 id="formTitle">Add a game</h2><p class="muted">Search first. We'll fill in the details when a reliable match is found.</p></div><button class="icon-button" type="button" data-close="gameDialog" aria-label="Close">×</button></div>
-    <div class="field"><label for="gameName">Game title</label><input id="gameName" required minlength="2" autocomplete="off" placeholder="e.g. Grand Theft Auto V"><div id="lookupMessage" class="field-help" aria-live="polite">Type a title to search Steam and other available game records.</div><div id="lookupChoices" class="lookup-choices"></div></div>
+    <div class="field"><label for="gameName">Game title</label><input id="gameName" required minlength="2" autocomplete="off" placeholder="e.g. Grand Theft Auto V"><div id="lookupMessage" class="field-help" aria-live="polite">Search across game databases and web results, including fan games and ROM hacks.</div><div id="lookupChoices" class="lookup-choices"></div></div>
     <div class="form-grid"><div class="field"><label for="gameGenre">Genre</label><select id="gameGenre"><option>Action</option><option>Adventure</option><option>Racing</option><option>Sports</option><option>RPG</option><option>Shooter</option><option>Strategy</option><option>Simulation</option><option>Horror</option><option>Other</option></select></div>
     <div class="field"><label for="gameDevice">Played on</label><select id="gameDevice"><option>PC</option><option>PlayStation</option><option>Xbox</option><option>Nintendo</option><option>Mobile</option><option>Other</option></select></div></div>
     <div class="form-grid"><div class="field"><label for="gameStatus">Play status</label><select id="gameStatus"><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div>
