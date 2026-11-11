@@ -3,7 +3,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const STORAGE_KEY = "afterplay_games";
   // Paste your Cloudflare Worker URL here after deploying worker/worker.js.
-  const API_BASE = "";
+  const API_BASE = ""; // Add your deployed Cloudflare Worker URL here to enable online search.
   const STATUSES = ["Just started", "Playing", "Paused", "Finished", "Completed 100%", "Dropped", "Backlog"];
   const PLATFORMS = ["PC", "PlayStation", "Xbox", "Nintendo", "Mobile", "Other"];
   const GENRES = ["Action", "Adventure", "Racing", "Sports", "RPG", "Shooter", "Strategy", "Simulation", "Horror", "Other"];
@@ -124,10 +124,11 @@
     if (!entries.length) { empty.hidden = false; canvas.hidden = true; }
     else {
       empty.hidden = true; canvas.hidden = false;
+      if (window.ChartDataLabels) Chart.register(ChartDataLabels);
       chart = new Chart(canvas, {
         type: "doughnut",
         data: { labels: entries.map(([name]) => name), datasets: [{ data: entries.map(([,count]) => count), backgroundColor: entries.map((_,i) => colors[i % colors.length]), borderColor: "#121923", borderWidth: 4, hoverOffset: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "right", labels: { color: "#c5ced8", boxWidth: 9, boxHeight: 9, padding: 13, font: { family: "DM Sans", size: 10 } } }, tooltip: { callbacks: { label: context => ` ${context.label}: ${context.raw} (${Math.round(context.raw / games.length * 100)}%)` } } } }
+        options: { responsive: true, maintainAspectRatio: false, cutout: "62%", plugins: { legend: { position: "right", labels: { color: "#c5ced8", boxWidth: 9, boxHeight: 9, padding: 13, font: { family: "DM Sans", size: 10 } } }, datalabels: { color: "#10151c", font: { weight: "700", size: 11 }, formatter: (value, context) => { const total = context.dataset.data.reduce((a,b) => a+b, 0); return total ? `${Math.round(value / total * 100)}%` : ""; }, display: context => { const total = context.dataset.data.reduce((a,b) => a+b, 0); return total && context.dataset.data[context.dataIndex] / total >= 0.08; } }, tooltip: { callbacks: { label: context => ` ${context.label}: ${context.raw} (${Math.round(context.raw / games.length * 100)}%)` } } } }
       });
     }
     const grid = $("#platformGrid"); grid.replaceChildren();
@@ -145,7 +146,7 @@
   const gameDialog = $("#gameDialog"), detailDialog = $("#detailDialog");
   function openAddDialog() {
     $("#gameForm").reset(); $("#formTitle").textContent = "Add a game";
-    $("#lookupMessage").textContent = "Type a title to search Steam and other available game records.";
+    $("#lookupMessage").textContent = "Search automatically after connecting the free lookup service. Common aliases such as GTA 5 and GTA V are treated as the same game.";
     $("#lookupChoices").replaceChildren(); selectedGameId = null;
     gameDialog.showModal(); $("#gameName").focus();
   }
@@ -158,11 +159,22 @@
     if (!response.ok) throw new Error(data.error || "Request failed");
     return data;
   }
+  function standardizeTitle(title) {
+    const key = title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+    const aliases = {
+      "gta 5": "Grand Theft Auto V", "gta v": "Grand Theft Auto V", "gta5": "Grand Theft Auto V",
+      "grand theft auto 5": "Grand Theft Auto V", "grand theft auto v": "Grand Theft Auto V",
+      "rdr 2": "Red Dead Redemption 2", "rdr2": "Red Dead Redemption 2",
+      "fh 4": "Forza Horizon 4", "fh4": "Forza Horizon 4", "fh 5": "Forza Horizon 5", "fh5": "Forza Horizon 5"
+    };
+    return aliases[key] || title.trim();
+  }
   async function lookupTitle(title) {
     if (lookupAbort) lookupAbort.abort();
     lookupAbort = new AbortController();
-    if (!API_BASE) throw new Error("Game lookup is not connected yet. Follow the setup guide to connect the free API.");
-    const response = await fetch(`${API_BASE}/api/lookup?q=${encodeURIComponent(title)}`, { signal: lookupAbort.signal });
+    if (!API_BASE) throw new Error("Online search is not connected yet. Follow the one-time Cloudflare setup in README-SETUP.txt. You can still add games manually.");
+    const normalized = standardizeTitle(title);
+    const response = await fetch(`${API_BASE}/api/lookup?q=${encodeURIComponent(normalized)}`, { signal: lookupAbort.signal });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "No online match found.");
     return data;
@@ -251,8 +263,8 @@
     const image = $("#detailImage");
     image.src = game.cover || game.landscape || ""; image.alt = `${game.name} cover`;
     image.onerror = () => {
-      if (game.landscape && image.src !== game.landscape) image.src = game.landscape;
-      else image.style.display = "none";
+      if (game.landscape && image.src !== game.landscape) { image.src = game.landscape; image.style.objectFit = "contain"; }
+      else { image.style.display = "none"; }
     };
     image.onload = () => { image.style.display = "block"; };
     $("#detailChips").replaceChildren(createChip(game.genre), createChip(game.device), createChip(game.status, "status"));

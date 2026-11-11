@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" defer></script>
 <script src="./app.js" defer></script>
 </head>
 <body>
@@ -45,9 +46,9 @@
     <div class="form-grid"><div class="field"><label for="gameGenre">Genre</label><select id="gameGenre"><option>Action</option><option>Adventure</option><option>Racing</option><option>Sports</option><option>RPG</option><option>Shooter</option><option>Strategy</option><option>Simulation</option><option>Horror</option><option>Other</option></select></div>
     <div class="field"><label for="gameDevice">Played on</label><select id="gameDevice"><option>PC</option><option>PlayStation</option><option>Xbox</option><option>Nintendo</option><option>Mobile</option><option>Other</option></select></div></div>
     <div class="form-grid"><div class="field"><label for="gameStatus">Play status</label><select id="gameStatus"><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div>
-    <div class="field"><label for="gameRelease">Release date</label><input id="gameRelease" placeholder="Auto-filled when available"></div></div>
-    <div class="field"><label for="gameSummary">Game description</label><textarea id="gameSummary" rows="3" placeholder="Automatically fetched when available. You can edit it if needed."></textarea></div>
-    <div class="field"><label for="gameCover">Cover image URL</label><input id="gameCover" type="url" placeholder="Automatically fetched when available"></div>
+    <div class="field"><label for="gameRelease">Release date <span class="optional">OPTIONAL</span></label><input id="gameRelease" placeholder="Auto-filled when available"></div></div>
+    <div class="field"><label for="gameSummary">Game description <span class="optional">OPTIONAL</span></label><textarea id="gameSummary" rows="3" placeholder="Automatically fetched when available. You can edit it if needed."></textarea></div>
+    <div class="field"><label for="gameCover">Cover image URL <span class="optional">OPTIONAL</span></label><input id="gameCover" type="url" placeholder="Automatically fetched when available"></div>
     <div class="field"><label for="gameNotes">Your notes <span class="optional">OPTIONAL</span></label><textarea id="gameNotes" rows="2" placeholder="Your memories, progress, favourite moments…"></textarea></div>
     <div class="dialog-actions"><button class="button button-quiet" type="button" data-close="gameDialog">Cancel</button><button class="button button-primary" id="saveGameButton" type="submit">Save to library</button></div>
   </form>
@@ -61,7 +62,7 @@
       <div class="rank-card"><span>GLOBAL REVIEW SNAPSHOT</span><strong id="detailRank">Not available</strong><small id="detailRankNote">A verified worldwide rank is not available for every title.</small></div>
       <p id="detailSummary" class="detail-summary"></p><div class="detail-meta" id="detailMeta"></div>
       <div class="field"><label for="editStatus">Update play status</label><select id="editStatus"><option>Just started</option><option>Playing</option><option>Paused</option><option>Finished</option><option>Completed 100%</option><option>Dropped</option><option>Backlog</option></select></div>
-      <div class="field"><label for="editNotes">Your notes</label><textarea id="editNotes" rows="2"></textarea></div>
+      <div class="field"><label for="editNotes">Your notes <span class="optional">OPTIONAL</span></label><textarea id="editNotes" rows="2"></textarea></div>
       <div class="detail-actions"><button class="button button-danger" id="deleteGameButton" type="button">Delete game</button><span class="spacer"></span><button class="button button-quiet" data-close="detailDialog" type="button">Close</button><button class="button button-primary" id="updateGameButton" type="button">Save changes</button></div>
     </div>
   </article>
