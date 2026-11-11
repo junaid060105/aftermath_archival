@@ -273,3 +273,52 @@ nav a:hover::after {
     }
 }
 
+
+/* AFTERPLAY — Scroll Reveal */
+
+.js-reveal .reveal {
+    opacity: 0;
+    transform: translateY(35px);
+    transition:
+        opacity .8s cubic-bezier(.2,.65,.3,1),
+        transform .8s cubic-bezier(.2,.65,.3,1);
+    will-change: opacity, transform;
+}
+
+.js-reveal .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Game cards reveal from below */
+.js-reveal .game-card.reveal {
+    transform: translateY(45px) scale(.96);
+}
+
+.js-reveal .game-card.reveal.is-visible {
+    transform: translateY(0) scale(1);
+}
+
+/* Hero entrance */
+.js-reveal .hero.reveal {
+    transform: translateY(25px);
+    transition-duration: 1s;
+}
+
+/* Dashboard entrance */
+.js-reveal .panel.reveal {
+    transform: translateY(40px);
+}
+
+.js-reveal .panel.reveal.is-visible {
+    transform: translateY(0);
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .js-reveal .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
