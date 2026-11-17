@@ -53,9 +53,11 @@ FIRST-VISIT EXPERIENCE
 - To test a truly new-user view in the same browser, use a private/incognito window.
 
 
-MUSIC PLAYER — NO BRAVE KEY / NO VISITOR API KEY
-- The MUSIC dock searches Apple's public iTunes Search API through the existing Cloudflare Worker.
-- It plays short preview clips only when Apple provides a preview URL. Not every game soundtrack is in Apple's catalogue.
-- A YouTube search link is offered for full-length soundtrack discovery; full-length playback opens on YouTube.
-- Visitors do not need a Brave key, Spotify login, or any API key.
-- AFTERPLAY does not download, store, or re-host copyrighted music.
+AFTERPLAY RADIO — YOUTUBE
+- The floating AFTERPLAY RADIO button opens the music panel.
+- Search opens YouTube results in a new tab for the entered game soundtrack.
+- To play inside the panel, paste a YouTube video URL and choose LOAD.
+- The player uses YouTube's privacy-enhanced youtube-nocookie.com embed domain.
+- No Spotify login, visitor account connection, API key, or music backend route is required.
+- YouTube may restrict embedding for some videos; if so, open that video directly on YouTube.
+- Visitors must still follow YouTube's own terms and availability rules.

@@ -383,14 +383,14 @@
   }
 
 
-  // AFTERPLAY MUSIC — public iTunes previews; visitors need no API key.
+  // AFTERPLAY RADIO — YouTube search and safe video embedding; no API key.
   const musicFab = $("#musicFab");
   const musicPanel = $("#musicPanel");
   const musicInput = $("#musicSearchInput");
-  const musicResults = $("#musicResults");
-  const musicAudio = $("#musicAudio");
-  const musicAudioWrap = $("#musicAudioWrap");
   const musicCurrent = $("#musicCurrent");
+  const musicVideoInput = $("#musicVideoInput");
+  const musicVideoWrap = $("#musicVideoWrap");
+  const musicVideo = $("#musicVideo");
 
   function setMusicPanel(open) {
     musicPanel.classList.toggle("is-open", open);
@@ -399,80 +399,45 @@
     if (open) setTimeout(() => musicInput.focus(), 150);
   }
 
-  function showMusicEmpty(message) {
-    musicResults.replaceChildren();
-    const box = document.createElement("div");
-    box.className = "music-empty";
-    box.textContent = message;
-    musicResults.append(box);
-  }
-
-  function makeYouTubeLink(query) {
-    const a = document.createElement("a");
-    a.className = "music-youtube-link";
-    a.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + " game soundtrack main theme")}`;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.textContent = "Search full soundtrack on YouTube ↗";
-    return a;
-  }
-
-  async function searchGameMusic(query) {
+  function searchYouTube(query) {
     const term = query.trim();
     if (!term) return;
-    musicAudio.pause();
-    musicAudio.removeAttribute("src");
-    musicAudio.load();
-    musicAudioWrap.hidden = true;
-    showMusicEmpty("Searching available soundtrack previews…");
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(term + " game soundtrack")}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    musicCurrent.replaceChildren();
+    musicCurrent.append(document.createTextNode("YOUTUBE SEARCH "));
+    const span = document.createElement("span");
+    span.textContent = `— ${term}`;
+    musicCurrent.append(span);
+  }
+
+  function extractYouTubeId(value) {
     try {
-      const response = await fetch(`${API_BASE}/api/music?q=${encodeURIComponent(term)}`);
-      if (!response.ok) throw new Error("Music search unavailable");
-      const data = await response.json();
-      const tracks = data.results || [];
-      musicResults.replaceChildren();
-      if (!tracks.length) {
-        showMusicEmpty("No playable preview was found for this game. Try the full soundtrack search below.");
-        musicResults.append(makeYouTubeLink(term));
-        return;
+      const url = new URL(value.trim());
+      const host = url.hostname.replace(/^www\./, "").toLowerCase();
+      if (host === "youtu.be") return url.pathname.split("/").filter(Boolean)[0] || "";
+      if (["youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"].includes(host)) {
+        if (url.pathname === "/watch") return url.searchParams.get("v") || "";
+        const parts = url.pathname.split("/").filter(Boolean);
+        if (["embed", "shorts", "live"].includes(parts[0])) return parts[1] || "";
       }
-      tracks.forEach(track => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "music-result";
-        const image = document.createElement("img");
-        image.src = track.artwork || "";
-        image.alt = "";
-        image.loading = "lazy";
-        const info = document.createElement("span");
-        const title = document.createElement("b");
-        title.textContent = track.title || "Game soundtrack";
-        const artist = document.createElement("small");
-        artist.textContent = [track.artist, track.album].filter(Boolean).join(" • ") || "Soundtrack preview";
-        const play = document.createElement("span");
-        play.className = "music-play";
-        play.textContent = "▶";
-        info.append(title, artist);
-        button.append(image, info, play);
-        button.addEventListener("click", async () => {
-          musicAudio.src = track.preview;
-          musicAudioWrap.hidden = false;
-          $("#musicAudioMeta").textContent = `PREVIEW — ${track.title || term}`;
-          musicCurrent.replaceChildren();
-          musicCurrent.append(document.createTextNode("NOW PLAYING "));
-          const span = document.createElement("span");
-          span.textContent = `— ${track.title || term}`;
-          musicCurrent.append(span);
-          try { await musicAudio.play(); }
-          catch { $("#musicAudioMeta").textContent = "Press play in the audio controls to start the preview."; }
-        });
-        musicResults.append(button);
-      });
-      musicResults.append(makeYouTubeLink(term));
-    } catch (error) {
-      showMusicEmpty("Music preview search is temporarily unavailable. You can still search YouTube.");
-      musicResults.append(makeYouTubeLink(term));
+    } catch (_) {}
+    return "";
+  }
+
+  function loadYouTubeVideo(value) {
+    const id = extractYouTubeId(value);
+    if (!/^[A-Za-z0-9_-]{11}$/.test(id)) {
+      musicCurrent.textContent = "INVALID LINK — Paste a valid YouTube video URL";
+      return;
     }
+    musicVideo.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    musicVideoWrap.hidden = false;
+    musicCurrent.replaceChildren();
+    musicCurrent.append(document.createTextNode("NOW PLAYING "));
+    const span = document.createElement("span");
+    span.textContent = "— YouTube video";
+    musicCurrent.append(span);
   }
 
   musicFab.addEventListener("click", () => {
@@ -480,16 +445,17 @@
     setMusicPanel(opening);
     if (opening && !musicInput.value) {
       const title = soundtrackGameName || (games.length ? games[0].name : "");
-      if (title) {
-        musicInput.value = title;
-        searchGameMusic(title);
-      }
+      if (title) musicInput.value = `${title} soundtrack`;
     }
   });
   $("#musicClose").addEventListener("click", () => setMusicPanel(false));
   $("#musicSearchForm").addEventListener("submit", event => {
     event.preventDefault();
-    searchGameMusic(musicInput.value);
+    searchYouTube(musicInput.value);
+  });
+  $("#musicLoadForm").addEventListener("submit", event => {
+    event.preventDefault();
+    loadYouTubeVideo(musicVideoInput.value);
   });
 
   const detailNameForMusic = $("#detailName");
@@ -498,7 +464,7 @@
       const title = detailNameForMusic.textContent.trim();
       if (title) {
         soundtrackGameName = title;
-        musicInput.value = title;
+        musicInput.value = `${title} soundtrack`;
       }
     }).observe(detailNameForMusic, { childList: true, characterData: true, subtree: true });
   }
