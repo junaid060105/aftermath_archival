@@ -86,29 +86,25 @@
   </article>
 </dialog>
 
-<!-- AFTERPLAY RADIO — YouTube search + user-selected video embed -->
+<!-- AFTERPLAY MUSIC PLAYER -->
 <button type="button" class="music-fab" id="musicFab" aria-expanded="false" aria-controls="musicPanel">
-  <span class="music-fab-icon">♫</span><span>AFTERPLAY RADIO</span>
+  <span class="music-fab-icon">♫</span><span>MUSIC</span>
 </button>
-<aside class="music-panel" id="musicPanel" aria-label="Afterplay Radio" aria-hidden="true">
+<aside class="music-panel" id="musicPanel" aria-label="Afterplay Radio player" aria-hidden="true">
   <div class="music-panel-head">
     <div><p class="eyebrow">AFTERPLAY AUDIO</p><h2>AFTERPLAY RADIO</h2></div>
     <button type="button" class="icon-button" id="musicClose" aria-label="Close music player">×</button>
   </div>
-  <p class="music-copy">Find a game soundtrack on YouTube, or paste a YouTube video link to play it here.</p>
-  <form id="musicSearchForm" class="music-search">
-    <input id="musicSearchInput" type="search" placeholder="Search game soundtrack…" autocomplete="off" aria-label="Search YouTube for game soundtrack">
-    <button class="button button-primary" type="submit">SEARCH YT ↗</button>
+  <p class="music-copy">Paste a YouTube video, Mix, or playlist link to play it here.</p>
+  <form id="musicLinkForm" class="music-link-form">
+    <input id="musicLinkInput" type="url" inputmode="url" placeholder="Paste YouTube mix or playlist link…" autocomplete="url" aria-label="YouTube video or playlist link" required>
+    <button class="button button-primary" type="submit">LOAD</button>
   </form>
-  <form id="musicLoadForm" class="music-search music-load-form">
-    <input id="musicVideoInput" type="url" placeholder="Paste YouTube video URL…" autocomplete="off" aria-label="YouTube video URL">
-    <button class="button button-quiet" type="submit">LOAD</button>
-  </form>
-  <div class="music-current" id="musicCurrent">RADIO IDLE <span>— Choose a soundtrack</span></div>
-  <div class="music-video-wrap" id="musicVideoWrap" hidden>
-    <iframe id="musicVideo" title="YouTube soundtrack player" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <div class="music-current" id="musicCurrent">NOTHING PLAYING <span>— Paste a YouTube link</span></div>
+  <div class="music-embed-wrap" id="musicEmbedWrap" hidden>
+    <iframe id="musicEmbed" title="YouTube music player" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
-  <p class="music-footnote">Playback is provided by YouTube. Search opens YouTube results; paste a video link to play an individual video here. No account connection or API key required.</p>
+  <p class="music-footnote">YouTube playback is embedded here. No account connection or API key is required. Some videos may not allow embedding.</p>
 </aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

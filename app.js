@@ -383,89 +383,68 @@
   }
 
 
-  // AFTERPLAY RADIO — YouTube search and safe video embedding; no API key.
+  // AFTERPLAY RADIO — load a YouTube video, Mix, or playlist from a pasted link.
   const musicFab = $("#musicFab");
   const musicPanel = $("#musicPanel");
-  const musicInput = $("#musicSearchInput");
+  const musicLinkInput = $("#musicLinkInput");
+  const musicEmbedWrap = $("#musicEmbedWrap");
+  const musicEmbed = $("#musicEmbed");
   const musicCurrent = $("#musicCurrent");
-  const musicVideoInput = $("#musicVideoInput");
-  const musicVideoWrap = $("#musicVideoWrap");
-  const musicVideo = $("#musicVideo");
 
   function setMusicPanel(open) {
     musicPanel.classList.toggle("is-open", open);
     musicPanel.setAttribute("aria-hidden", String(!open));
     musicFab.setAttribute("aria-expanded", String(open));
-    if (open) setTimeout(() => musicInput.focus(), 150);
+    if (open) setTimeout(() => musicLinkInput.focus(), 150);
   }
 
-  function searchYouTube(query) {
-    const term = query.trim();
-    if (!term) return;
-    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(term + " game soundtrack")}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-    musicCurrent.replaceChildren();
-    musicCurrent.append(document.createTextNode("YOUTUBE SEARCH "));
-    const span = document.createElement("span");
-    span.textContent = `— ${term}`;
-    musicCurrent.append(span);
-  }
+  function getYouTubeEmbedUrl(raw) {
+    let url;
+    try { url = new URL(raw.trim()); } catch { return null; }
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    if (!["youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be"].includes(host)) return null;
 
-  function extractYouTubeId(value) {
-    try {
-      const url = new URL(value.trim());
-      const host = url.hostname.replace(/^www\./, "").toLowerCase();
-      if (host === "youtu.be") return url.pathname.split("/").filter(Boolean)[0] || "";
-      if (["youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"].includes(host)) {
-        if (url.pathname === "/watch") return url.searchParams.get("v") || "";
-        const parts = url.pathname.split("/").filter(Boolean);
-        if (["embed", "shorts", "live"].includes(parts[0])) return parts[1] || "";
-      }
-    } catch (_) {}
-    return "";
-  }
+    const listId = url.searchParams.get("list");
+    const videoId = host === "youtu.be"
+      ? url.pathname.split("/").filter(Boolean)[0]
+      : (url.searchParams.get("v") || url.pathname.match(/^\/(?:shorts|embed)\/([^/?]+)/)?.[1]);
 
-  function loadYouTubeVideo(value) {
-    const id = extractYouTubeId(value);
-    if (!/^[A-Za-z0-9_-]{11}$/.test(id)) {
-      musicCurrent.textContent = "INVALID LINK — Paste a valid YouTube video URL";
-      return;
+    if (listId && listId.trim()) {
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(listId)}`;
     }
-    musicVideo.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
-    musicVideoWrap.hidden = false;
-    musicCurrent.replaceChildren();
-    musicCurrent.append(document.createTextNode("NOW PLAYING "));
-    const span = document.createElement("span");
-    span.textContent = "— YouTube video";
-    musicCurrent.append(span);
+    if (videoId && /^[A-Za-z0-9_-]{6,}$/.test(videoId)) {
+      return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}`;
+    }
+    return null;
   }
 
-  musicFab.addEventListener("click", () => {
-    const opening = !musicPanel.classList.contains("is-open");
-    setMusicPanel(opening);
-    if (opening && !musicInput.value) {
-      const title = soundtrackGameName || (games.length ? games[0].name : "");
-      if (title) musicInput.value = `${title} soundtrack`;
-    }
+  $("#musicFab").addEventListener("click", () => {
+    setMusicPanel(!musicPanel.classList.contains("is-open"));
   });
   $("#musicClose").addEventListener("click", () => setMusicPanel(false));
-  $("#musicSearchForm").addEventListener("submit", event => {
+
+  $("#musicLinkForm").addEventListener("submit", event => {
     event.preventDefault();
-    searchYouTube(musicInput.value);
-  });
-  $("#musicLoadForm").addEventListener("submit", event => {
-    event.preventDefault();
-    loadYouTubeVideo(musicVideoInput.value);
+    const embedUrl = getYouTubeEmbedUrl(musicLinkInput.value);
+    if (!embedUrl) {
+      musicCurrent.textContent = "INVALID LINK — Paste a valid YouTube video, Mix, or playlist URL.";
+      musicEmbedWrap.hidden = true;
+      musicEmbed.src = "about:blank";
+      return;
+    }
+    musicEmbed.src = embedUrl + (embedUrl.includes("?") ? "&" : "?") + "autoplay=1";
+    musicEmbedWrap.hidden = false;
+    musicCurrent.replaceChildren(document.createTextNode("NOW PLAYING "));
+    const detail = document.createElement("span");
+    detail.textContent = "— YouTube";
+    musicCurrent.append(detail);
   });
 
   const detailNameForMusic = $("#detailName");
   if (detailNameForMusic) {
     new MutationObserver(() => {
       const title = detailNameForMusic.textContent.trim();
-      if (title) {
-        soundtrackGameName = title;
-        musicInput.value = `${title} soundtrack`;
-      }
+      if (title) soundtrackGameName = title;
     }).observe(detailNameForMusic, { childList: true, characterData: true, subtree: true });
   }
 
