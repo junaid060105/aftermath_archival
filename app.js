@@ -45,6 +45,20 @@
   if (!games) { games = []; persist(); }
   function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(games)); }
 
+  // Curated correction: F1 25 Standard Edition cover (not the 2026 Season Edition banner).
+  const F1_25_STANDARD_COVER = "https://mdigitalgames.com/cdn/shop/files/44c15449fbe9485987e27e2fa2c86008a7b4a89d9ab7e0a8.avif?v=1754431508";
+  let correctedF1Cover = false;
+  games.forEach(game => {
+    if (/^(f1\\s*25|formula\\s*1\\s*25)$/i.test(game.name.trim())) {
+      if (game.cover !== F1_25_STANDARD_COVER) {
+        game.cover = F1_25_STANDARD_COVER;
+        game.landscape = "";
+        correctedF1Cover = true;
+      }
+    }
+  });
+  if (correctedF1Cover) persist();
+
   function toast(message) {
     const el = $("#toast"); el.textContent = message; el.classList.add("show");
     clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove("show"), 2300);
@@ -61,10 +75,19 @@
   function updateBackdrop(game) {
     const backdrop = $("#backdrop");
     if (game?.cover) {
-      backdrop.style.backgroundImage = `url("${game.cover.replace(/["\\]/g, "")}")`;
-      backdrop.style.opacity = ".42";
+      const safeCover = game.cover.replace(/["\\]/g, "");
+      backdrop.style.backgroundImage = `url("${safeCover}")`;
+      backdrop.style.opacity = ".52";
+      document.body.classList.add("game-hovering");
     } else {
-      backdrop.style.backgroundImage = "none"; backdrop.style.opacity = ".08";
+      backdrop.style.opacity = ".08";
+      document.body.classList.remove("game-hovering");
+      // Clear after fade-out so the previous artwork does not flash.
+      window.setTimeout(() => {
+        if (!document.body.classList.contains("game-hovering")) {
+          backdrop.style.backgroundImage = "none";
+        }
+      }, 480);
     }
   }
 
@@ -90,6 +113,9 @@
     visible.forEach(game => {
       const card = document.createElement("button"); card.type = "button"; card.className = "game-card";
       card.setAttribute("aria-label", `Open ${game.name}`);
+      if (game.cover) {
+        card.style.setProperty("--card-art", `url("${game.cover.replace(/["\\]/g, "")}")`);
+      }
       if (game.cover) {
         const img = document.createElement("img"); img.src = game.cover; img.alt = `${game.name} cover`; img.loading = "lazy";
         img.onerror = () => {
@@ -341,6 +367,20 @@
     if (!name) return;
     enterArchive(name);
   });
+
+  // Log out of the current profile without deleting the local game archive.
+  const logoutButton = $("#logoutButton");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+      localStorage.removeItem(PROFILE_KEY);
+      playerNameInput.value = "";
+      welcomeScreen.hidden = false;
+      welcomeScreen.classList.remove("welcome-exit");
+      document.body.classList.remove("app-ready", "app-entering");
+      document.body.classList.add("onboarding-active");
+      window.setTimeout(() => playerNameInput.focus(), 180);
+    });
+  }
 
   render();
 })();

@@ -88,3 +88,162 @@ body.app-ready footer { animation-delay: .3s; }
   .welcome-screen, .welcome-mark, .welcome-kicker, .welcome-content h1, .welcome-copy, .welcome-form,
   body.app-ready .hero, body.app-ready #library, body.app-ready .dashboard, body.app-ready footer { animation: none !important; transition: none !important; }
 }
+
+
+
+
+/* =========================================================
+   AFTERPLAY — FINAL VISUAL POLISH
+   High-contrast titles • cinematic game hover • responsive logout
+========================================================= */
+
+/* Keep ALL game-card typography readable, including fallback art. */
+.game-card,
+.game-card * {
+  color: #f4f6f8;
+}
+.game-card .game-info {
+  z-index: 4;
+}
+.game-card .game-info h3 {
+  color: #f7f8fa !important;
+  -webkit-text-fill-color: #f7f8fa !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: .1px !important;
+  text-transform: none !important;
+  text-shadow: 0 2px 12px #000, 0 1px 2px #000 !important;
+  margin: 0 0 10px !important;
+  overflow-wrap: anywhere;
+}
+
+/* Fallback cover: attractive and readable, never black text. */
+.game-card .cover-placeholder {
+  color: #f4f6f8 !important;
+  -webkit-text-fill-color: #f4f6f8 !important;
+  font: 700 19px/1.12 "DM Sans", sans-serif !important;
+  letter-spacing: -.2px;
+  text-align: left;
+  align-items: center;
+  justify-items: start;
+  padding: 22px;
+  text-shadow: 0 2px 12px #000;
+  background:
+    radial-gradient(ellipse at 78% 24%, var(--glow, #355063), transparent 48%),
+    linear-gradient(145deg, #1c2834 0%, #111923 58%, #080c12 100%);
+}
+
+/* A tinted artwork layer blooms over each card on hover. */
+.game-card {
+  isolation: isolate;
+  transform: translateY(0);
+  transition:
+    transform .42s cubic-bezier(.2,.75,.25,1),
+    border-color .35s ease,
+    box-shadow .4s ease;
+}
+.game-card::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background-image: var(--card-art);
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.08);
+  filter: blur(2px) saturate(1.3);
+  transition: opacity .45s ease, transform .7s cubic-bezier(.2,.75,.25,1);
+  pointer-events: none;
+}
+.game-card::after {
+  z-index: 2;
+  background: linear-gradient(
+    180deg,
+    rgba(5,8,12,.04) 0%,
+    rgba(5,8,12,.16) 34%,
+    rgba(5,8,12,.92) 100%
+  );
+}
+.game-card:hover::before,
+.game-card:focus-visible::before {
+  opacity: .34;
+  transform: scale(1);
+}
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-7px) scale(1.018);
+  border-color: var(--lime);
+  box-shadow: 0 16px 38px #0009, 0 0 24px #c7ff4a18;
+}
+.game-card img {
+  position: relative;
+  z-index: 0;
+  transition: transform .7s cubic-bezier(.2,.75,.25,1), filter .5s ease;
+}
+.game-card:hover img,
+.game-card:focus-visible img {
+  transform: scale(1.055);
+  filter: saturate(1.12) brightness(.88);
+}
+.game-card .game-info { z-index: 4; }
+
+/* Global blurred backdrop follows the hovered game. */
+.backdrop {
+  transition: opacity .45s ease, filter .55s ease, transform .7s ease;
+  will-change: opacity, filter;
+}
+body.game-hovering .backdrop {
+  filter: blur(30px) saturate(1.55);
+  transform: scale(1.12);
+}
+.scrim {
+  transition: opacity .4s ease, background .4s ease;
+}
+body.game-hovering .scrim {
+  opacity: .88;
+}
+
+/* Logout control — visible and consistent with the header. */
+.top-meta { gap: 12px; }
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #34404d;
+  background: #ffffff05;
+  color: #d0d7df;
+  border-radius: 3px;
+  padding: 8px 11px;
+  font: 700 9px "DM Sans", sans-serif;
+  letter-spacing: 1.1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.logout-button:hover {
+  color: var(--lime);
+  border-color: #c7ff4a80;
+  background: #c7ff4a0c;
+  transform: translateY(-1px);
+}
+.logout-button:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+@media(max-width:700px) {
+  .top-meta { gap: 7px; }
+  .logout-button { padding: 7px 8px; font-size: 8px; }
+}
+@media(max-width:430px) {
+  .top-meta #totalCount { display: none; }
+  .logout-button { letter-spacing: .5px; }
+}
+
+/* Honour reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  .game-card, .game-card::before, .game-card img, .backdrop, .scrim,
+  .logout-button { transition: none !important; }
+}
