@@ -382,5 +382,126 @@
     });
   }
 
+
+  // AFTERPLAY MUSIC — public iTunes previews; visitors need no API key.
+  const musicFab = $("#musicFab");
+  const musicPanel = $("#musicPanel");
+  const musicInput = $("#musicSearchInput");
+  const musicResults = $("#musicResults");
+  const musicAudio = $("#musicAudio");
+  const musicAudioWrap = $("#musicAudioWrap");
+  const musicCurrent = $("#musicCurrent");
+
+  function setMusicPanel(open) {
+    musicPanel.classList.toggle("is-open", open);
+    musicPanel.setAttribute("aria-hidden", String(!open));
+    musicFab.setAttribute("aria-expanded", String(open));
+    if (open) setTimeout(() => musicInput.focus(), 150);
+  }
+
+  function showMusicEmpty(message) {
+    musicResults.replaceChildren();
+    const box = document.createElement("div");
+    box.className = "music-empty";
+    box.textContent = message;
+    musicResults.append(box);
+  }
+
+  function makeYouTubeLink(query) {
+    const a = document.createElement("a");
+    a.className = "music-youtube-link";
+    a.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + " game soundtrack main theme")}`;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = "Search full soundtrack on YouTube ↗";
+    return a;
+  }
+
+  async function searchGameMusic(query) {
+    const term = query.trim();
+    if (!term) return;
+    musicAudio.pause();
+    musicAudio.removeAttribute("src");
+    musicAudio.load();
+    musicAudioWrap.hidden = true;
+    showMusicEmpty("Searching available soundtrack previews…");
+    try {
+      const response = await fetch(`${API_BASE}/api/music?q=${encodeURIComponent(term)}`);
+      if (!response.ok) throw new Error("Music search unavailable");
+      const data = await response.json();
+      const tracks = data.results || [];
+      musicResults.replaceChildren();
+      if (!tracks.length) {
+        showMusicEmpty("No playable preview was found for this game. Try the full soundtrack search below.");
+        musicResults.append(makeYouTubeLink(term));
+        return;
+      }
+      tracks.forEach(track => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "music-result";
+        const image = document.createElement("img");
+        image.src = track.artwork || "";
+        image.alt = "";
+        image.loading = "lazy";
+        const info = document.createElement("span");
+        const title = document.createElement("b");
+        title.textContent = track.title || "Game soundtrack";
+        const artist = document.createElement("small");
+        artist.textContent = [track.artist, track.album].filter(Boolean).join(" • ") || "Soundtrack preview";
+        const play = document.createElement("span");
+        play.className = "music-play";
+        play.textContent = "▶";
+        info.append(title, artist);
+        button.append(image, info, play);
+        button.addEventListener("click", async () => {
+          musicAudio.src = track.preview;
+          musicAudioWrap.hidden = false;
+          $("#musicAudioMeta").textContent = `PREVIEW — ${track.title || term}`;
+          musicCurrent.replaceChildren();
+          musicCurrent.append(document.createTextNode("NOW PLAYING "));
+          const span = document.createElement("span");
+          span.textContent = `— ${track.title || term}`;
+          musicCurrent.append(span);
+          try { await musicAudio.play(); }
+          catch { $("#musicAudioMeta").textContent = "Press play in the audio controls to start the preview."; }
+        });
+        musicResults.append(button);
+      });
+      musicResults.append(makeYouTubeLink(term));
+    } catch (error) {
+      showMusicEmpty("Music preview search is temporarily unavailable. You can still search YouTube.");
+      musicResults.append(makeYouTubeLink(term));
+    }
+  }
+
+  musicFab.addEventListener("click", () => {
+    const opening = !musicPanel.classList.contains("is-open");
+    setMusicPanel(opening);
+    if (opening && !musicInput.value) {
+      const title = soundtrackGameName || (games.length ? games[0].name : "");
+      if (title) {
+        musicInput.value = title;
+        searchGameMusic(title);
+      }
+    }
+  });
+  $("#musicClose").addEventListener("click", () => setMusicPanel(false));
+  $("#musicSearchForm").addEventListener("submit", event => {
+    event.preventDefault();
+    searchGameMusic(musicInput.value);
+  });
+
+  const detailNameForMusic = $("#detailName");
+  if (detailNameForMusic) {
+    new MutationObserver(() => {
+      const title = detailNameForMusic.textContent.trim();
+      if (title) {
+        soundtrackGameName = title;
+        musicInput.value = title;
+      }
+    }).observe(detailNameForMusic, { childList: true, characterData: true, subtree: true });
+  }
+
   render();
 })();

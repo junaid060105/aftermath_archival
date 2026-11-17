@@ -51,3 +51,11 @@ FIRST-VISIT EXPERIENCE
 - New browser profiles start with an empty library and an invitation to add the first game.
 - Existing saved games are preserved; this update does not erase browser storage.
 - To test a truly new-user view in the same browser, use a private/incognito window.
+
+
+MUSIC PLAYER — NO BRAVE KEY / NO VISITOR API KEY
+- The MUSIC dock searches Apple's public iTunes Search API through the existing Cloudflare Worker.
+- It plays short preview clips only when Apple provides a preview URL. Not every game soundtrack is in Apple's catalogue.
+- A YouTube search link is offered for full-length soundtrack discovery; full-length playback opens on YouTube.
+- Visitors do not need a Brave key, Spotify login, or any API key.
+- AFTERPLAY does not download, store, or re-host copyrighted music.

@@ -85,5 +85,31 @@
     </div>
   </article>
 </dialog>
+
+<!-- AFTERPLAY MUSIC PLAYER -->
+<button type="button" class="music-fab" id="musicFab" aria-expanded="false" aria-controls="musicPanel">
+  <span class="music-fab-icon">♫</span><span>MUSIC</span>
+</button>
+<aside class="music-panel" id="musicPanel" aria-label="Game music player" aria-hidden="true">
+  <div class="music-panel-head">
+    <div><p class="eyebrow">AFTERPLAY AUDIO</p><h2>GAME SOUNDTRACKS</h2></div>
+    <button type="button" class="icon-button" id="musicClose" aria-label="Close music player">×</button>
+  </div>
+  <p class="music-copy">Search for game music. Play available previews here, or open the full soundtrack on YouTube.</p>
+  <form id="musicSearchForm" class="music-search">
+    <input id="musicSearchInput" type="search" placeholder="Search a game soundtrack…" autocomplete="off" aria-label="Search game soundtrack">
+    <button class="button button-primary" type="submit">SEARCH</button>
+  </form>
+  <div class="music-current" id="musicCurrent">NOTHING PLAYING <span>— Choose a track</span></div>
+  <div class="music-results" id="musicResults" aria-live="polite">
+    <div class="music-empty">Search for a game to discover available music.</div>
+  </div>
+  <div class="music-audio-wrap" id="musicAudioWrap" hidden>
+    <div class="music-audio-meta" id="musicAudioMeta">NOW PLAYING</div>
+    <audio id="musicAudio" controls preload="none"></audio>
+  </div>
+  <p class="music-footnote">Previews come from Apple's public music catalogue where available. Full soundtrack searches open YouTube. No visitor API key or account connection is required.</p>
+</aside>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body></html>
